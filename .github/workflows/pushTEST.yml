@@ -31,7 +31,7 @@ jobs:
   jest_test:
     name: jest_test
     environment: dev
-    runs-on: node-latest
+    runs-on: ubuntu-latest
     steps:
 
       - name: --- System Step 0 ---. Checkout repo
