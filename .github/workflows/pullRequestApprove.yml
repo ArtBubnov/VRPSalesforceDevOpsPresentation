@@ -1,0 +1,122 @@
+#this scenario will be executed if a Pull Request has been approved !!!!
+name: pull request approved logic
+
+
+env:
+  SOURCE_BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+  TARGET_BRANCH_NAME: ${{ github.event.pull_request.base.ref }}
+  ENV_DESTRUCTIVE_DIFF_SF: ${{ vars.SF_COMMAND_META_STRING }}
+  SALESFORCE_ORG_ALIAS: ${{ vars.SALESFORCE_ORG_ALIAS }}
+  ACCESS_KEY_SF: ${{ secrets.ACCESS_KEY_SF }}
+  SALESFORCE_META_DIRECTORY: "force-app/main/default"
+  APEX_TESTS_DIRECTORY: "force-app/main/default/classes/tests"
+  PR_NUMBER: ${{ github.event.number }}
+
+
+
+  ACCESS_KEY_SF_DEV: ${{ vars.PLATFORM_USERNAME_GITHUB_VARIABLE_VALUE }}
+#depends on the target branch one of the following scenarios will be executed:
+on:
+  pull_request_review:
+    types: [submitted]
+
+
+jobs:
+  push_logic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Global Step 0. Logger
+        run: |
+          echo -e "--- Step 1. Output global info for the current pipeline ---\n"
+          echo "Event is:"
+          echo -e "Pull request\n"
+          echo "Pull request source branch is:"
+          echo ${{ github.event.pull_request.head.ref }}
+          echo -e "\nPull request target branch is:"
+          echo ${{ github.event.pull_request.base.ref }}
+        
+          
+      - name: --- System Step 0 ---. Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+
+      - name: --- System Step 1 ---. Salesforce CLI install
+        uses: sfdx-actions/setup-sfdx@v1
+
+
+
+      - name: --- System Step 2 ---. Salesforce CLI version check
+        run: |
+          sudo npm sfdx --version
+
+
+
+      - name: Global Step 1. Salesforce org login
+        run: |
+            chmod +x ./build/login_to_SF_org.sh
+            ./build/login_to_SF_org.sh
+
+
+
+      - name: --- System Step 3 ---. Source branch checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+
+
+      - name: Global Step 2. Define positive and destructive changes
+        run: |
+          chmod +x ./build/get_destructive_changes.sh
+          ./build/get_destructive_changes.sh
+
+
+
+      #Due to the destructive metadata is represented only on the tharget branch
+      #workflow will swith to the target branch
+      #to perform destructive changes actions
+
+      - name: --- System Step 4 ---. Target branch checkout
+        uses: actions/checkout@v3
+        if: ${{ vars.DESTRUCTIVE_CHANGES_PRESENTED == true }} 
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          
+
+
+      - name: Global Step 3. Deploy destructive changes without saving
+        run: |
+          chmod +x ./build/deploy_destructive_changes_actions.sh
+          ./build/deploy_destructive_changes_actions.sh
+
+
+
+      #After the destructive changes activities workflow should
+      #get back to the source branch to perform following steps
+      
+      - name: --- System Step 5 ---. Source branch checkout
+        uses: actions/checkout@v3
+        if: ${{ vars.DESTRUCTIVE_CHANGES_PRESENTED == true }} 
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+
+  
+      - name: Global Step 4. Deploy metadata to Salesforce org
+        run: |
+          chmod +x ./build/deploy_metadata_to_sf_org.sh
+          ./build/deploy_metadata_to_sf_org.sh
+
+
+
+          
+  merge_branches:
+    needs: push_logic
+    runs-on: ubuntu-latest
+    steps:
+    - name: Merge the PR
+      run: |
+        chmod +x ./build/merge_branches.sh
+        ./build/merge_branches.sh
