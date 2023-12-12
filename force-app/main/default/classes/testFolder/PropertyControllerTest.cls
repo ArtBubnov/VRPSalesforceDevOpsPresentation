@@ -53,7 +53,7 @@ private class PropertyControllerTest {
 
         // Insert test properties as admin
         System.runAs(new User(Id = UserInfo.getUserId())) {
-            TestPropertyController.createProperties(5);
+            PropertyControllerTest.createProperties(5);
         }
         // Read properties as test user
         System.runAs(testUser) {
