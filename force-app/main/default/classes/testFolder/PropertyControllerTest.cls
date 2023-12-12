@@ -1,5 +1,5 @@
 @isTest
-private class TestPropertyController {
+private class PropertyControllerTest {
     private final static String MOCK_PICTURE_NAME = 'MockPictureName';
 
     public static void createProperties(Integer amount) {

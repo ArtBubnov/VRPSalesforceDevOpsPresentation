@@ -1,5 +1,5 @@
 @isTest
-private class TestSampleDataController {
+private class SampleDataControllerTest {
     @isTest
     static void importSampleData() {
         Test.startTest();
