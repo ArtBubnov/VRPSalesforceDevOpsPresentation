@@ -40,11 +40,11 @@ jobs:
            # npm -v
 
 
-  pre_deploy_logic:
-    name: pre_deploy_logic
-    environment: dev
-    runs-on: ubuntu-latest
-    steps:
+#  pre_deploy_logic:
+#    name: pre_deploy_logic
+#    environment: dev
+#    runs-on: ubuntu-latest
+#    steps:
 
 #      - name: --- System Step 0 ---. Checkout repo
 #        uses: actions/checkout@v3
@@ -52,8 +52,8 @@ jobs:
 #          fetch-depth: 0
 
 
-      - name: --- System Step 1 ---. Salesforce CLI install
-        uses: sfdx-actions/setup-sfdx@v1
+#      - name: --- System Step 1 ---. Salesforce CLI install
+#        uses: sfdx-actions/setup-sfdx@v1
 
 
 #      - name: --- Global Step 0. Logger ---
