@@ -205,7 +205,7 @@ positive_changes_pre_deploy_actions () {
     echo $ENV_POSITIVE_DIFF_SF
 
     echo -e "******* TEST ***********"
-    sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -c -l "$ENV_APEX_TESTS_SF" -u ${SALESFORCE_ORG_ALIAS}
+    sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -c -l RunSpecifiedTests -r "$ENV_APEX_TESTS_SF" -u ${SALESFORCE_ORG_ALIAS}
 
 
     echo -e "\n--- Step 3 execution is finished ---"
