@@ -35,9 +35,9 @@ jobs:
     steps:
         - name: JEST TEST
           run: |
-            npm install --save-dev jest
             echo "------------"
-            npm -v
+          #  npm install --save-dev jest
+           # npm -v
 
 
   pre_deploy_logic:
