@@ -1,0 +1,102 @@
+#this scenario will be executed in case of creation of a Pull Request  
+name: pull request logic
+
+#workflow global variables
+env:
+  SOURCE_BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+  TARGET_BRANCH_NAME: ${{ github.event.pull_request.base.ref }}
+  ENV_DESTRUCTIVE_DIFF_SF: ${{ vars.SF_COMMAND_META_STRING }}
+  SALESFORCE_ORG_ALIAS: ${{ vars.SALESFORCE_ORG_ALIAS }}
+  ACCESS_KEY_SF: ${{ secrets.ACCESS_KEY_SF }}
+  SALESFORCE_META_DIRECTORY: "force-app/main/default"
+  APEX_TESTS_DIRECTORY: "force-app/main/default/classes/testFolder"
+  PR_NUMBER: ${{ github.event.number }}
+
+
+  
+on:
+  pull_request:
+    #PR target branch is: 
+    branches:
+      - 'dev**'
+      - 'qa**'
+      - 'staging**'
+      - 'uat**'
+      - 'prod**'
+    types: [opened, reopened, synchronize]
+
+
+jobs:
+  pre_deploy_logic:
+    environment: ${{ github.event.pull_request.base.ref }}
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: --- System Step 0 ---. Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: --- TEST ---
+        run: |
+          pwd
+          ls -a
+
+
+
+      - name: --- System Step 1 ---. Salesforce CLI install
+        uses: sfdx-actions/setup-sfdx@v1
+
+
+
+
+      - name: --- Global Step 0. Logger ---
+        run: |
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && logger
+
+
+      - name: --- Global Step 1. Salesforce login ---
+        run: |
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && login_to_SF_org
+
+
+      - name: --- Global Step 2. Get destractive meta list ---
+        run: |
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && get_destructive_changes
+
+
+      - name: --- Global Step 3. Get positive meta list ---
+        run: |
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && get_positive_changes
+
+
+      - name: --- Global Step 4. Get apex tests list ---
+        run: |
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && get_apex_tests_list
+
+      
+
+
+
+      - name: --- Global Step 5. Deploy destructive changes without saving ---
+        run: |
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && destructive_changes_pre_deploy_actions
+
+
+      - name: --- Global Step 6. Deploy positive changes without saving ---
+        run: |
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && positive_changes_pre_deploy_actions
+
+#      - name: --- Global Step 6. Deploy positive changes without saving ---
+#        run: |
+#          chmod +x ./build/ci_cd_external_functions.sh
+#          source ./build/ci_cd_external_functions.sh && test_actions
+          
