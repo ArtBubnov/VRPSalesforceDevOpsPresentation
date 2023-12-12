@@ -50,7 +50,9 @@ jobs:
           npm -version
 
       - name:  --- System Step 4 ---. sfdx-lwc-jest install
-        run: npm install @salesforce/sfdx-lwc-jest --save-dev
+        run: |
+          npm install @salesforce/sfdx-lwc-jest --save-dev
+          npm -version
 
 #  pre_deploy_logic:
 #    name: pre_deploy_logic
