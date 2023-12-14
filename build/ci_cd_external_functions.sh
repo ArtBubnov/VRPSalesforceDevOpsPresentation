@@ -7,6 +7,8 @@ logger () {
     
     echo "Event is:"
     echo -e "Pull request\n"
+    echo -e "Pull request number is:\n"
+    echo $PR_NUMBER
     echo "Pull request source branch is:"
     echo $SOURCE_BRANCH_NAME
     echo -e "\nPull request target branch is:"
