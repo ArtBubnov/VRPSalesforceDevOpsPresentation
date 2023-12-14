@@ -46,77 +46,72 @@ jobs:
         uses: sfdx-actions/setup-sfdx@v1
 
 
-
-      - name: --- System Step 2 ---. Salesforce CLI version check
-        run: |
-          sudo npm sfdx --version
-
-
-
-      - name: Global Step 1. Salesforce org login
-        run: |
-            chmod +x ./build/login_to_SF_org.sh
-            ./build/login_to_SF_org.sh
-
-
-
-      - name: --- System Step 3 ---. Source branch checkout
-        uses: actions/checkout@v3
+      - name: --- System Step 2 ---. Node install
+        uses: actions/setup-node@v4 
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          node-version: 18
 
 
-
-      - name: Global Step 2. Define positive and destructive changes
+      - name: --- Global Step 0. Logger ---
         run: |
-          chmod +x ./build/get_destructive_changes.sh
-          ./build/get_destructive_changes.sh
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && logger
 
 
-
-      #Due to the destructive metadata is represented only on the tharget branch
-      #workflow will swith to the target branch
-      #to perform destructive changes actions
-
-      - name: --- System Step 4 ---. Target branch checkout
-        uses: actions/checkout@v3
-        if: ${{ vars.DESTRUCTIVE_CHANGES_PRESENTED == true }} 
-        with:
-          ref: ${{ github.event.pull_request.base.ref }}
-          
-
-
-      - name: Global Step 3. Deploy destructive changes without saving
+      - name: --- Global Step 1. Salesforce login ---
         run: |
-          chmod +x ./build/deploy_destructive_changes_actions.sh
-          ./build/deploy_destructive_changes_actions.sh
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && login_to_SF_org
 
 
-
-      #After the destructive changes activities workflow should
-      #get back to the source branch to perform following steps
-      
-      - name: --- System Step 5 ---. Source branch checkout
-        uses: actions/checkout@v3
-        if: ${{ vars.DESTRUCTIVE_CHANGES_PRESENTED == true }} 
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-
-
-  
-      - name: Global Step 4. Deploy metadata to Salesforce org
+      - name: --- Global Step 2. Get destractive meta list ---
         run: |
-          chmod +x ./build/deploy_metadata_to_sf_org.sh
-          ./build/deploy_metadata_to_sf_org.sh
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && get_destructive_changes
+
+
+      - name: --- Global Step 3. Get positive meta list ---
+        run: |
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && get_positive_changes
+
+
+      - name: --- Global Step 4. Get apex tests list ---
+        run: |
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && get_apex_tests_list
+
+
+      - name: --- System Step 5 ---. run JEST tests
+        run: |
+          npm install --save-dev jest
+          npm install @salesforce/sfdx-lwc-jest --save-dev
+          npm -version
+          node ./node_modules/@salesforce/sfdx-lwc-jest/bin/sfdx-lwc-jest
+
+
+      - name: --- Global Step 6. Deploy destructive changes without saving ---
+        run: |
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && destructive_changes_deploy_actions
+
+
+      - name: --- Global Step 7. Deploy positive changes without saving ---
+        run: |
+          chmod +x ./build/ci_cd_external_functions.sh
+          source ./build/ci_cd_external_functions.sh && positive_changes_deploy_actions
 
 
 
-          
-  merge_branches:
-    needs: push_logic
-    runs-on: ubuntu-latest
-    steps:
-    - name: Merge the PR
-      run: |
-        chmod +x ./build/merge_branches.sh
-        ./build/merge_branches.sh
+
+
+
+
+
+
+
+
+
+
+
+
