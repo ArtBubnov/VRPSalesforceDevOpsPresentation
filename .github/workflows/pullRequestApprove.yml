@@ -1,4 +1,4 @@
-#this scenario will be executed if a Pull Request has been approved !!!!
+#this scenario will be executed if a Pull Request has been approved !!!! 
 name: pull request approved logic
 
 
