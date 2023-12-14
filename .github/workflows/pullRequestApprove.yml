@@ -22,19 +22,11 @@ on:
 
 jobs:
   push_logic:
+    environment: ${{ github.event.pull_request.base.ref }}
     runs-on: ubuntu-latest
+ 
     steps:
-      - name: Global Step 0. Logger
-        run: |
-          echo -e "--- Step 1. Output global info for the current pipeline ---\n"
-          echo "Event is:"
-          echo -e "Pull request\n"
-          echo "Pull request source branch is:"
-          echo ${{ github.event.pull_request.head.ref }}
-          echo -e "\nPull request target branch is:"
-          echo ${{ github.event.pull_request.base.ref }}
-        
-          
+  
       - name: --- System Step 0 ---. Checkout repo
         uses: actions/checkout@v3
         with:
