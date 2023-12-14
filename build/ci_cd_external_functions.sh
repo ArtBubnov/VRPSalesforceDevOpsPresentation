@@ -212,14 +212,18 @@ destructive_changes_pre_deploy_actions () {
     echo -e "--- destructive_changes_pre_deploy_actions () function execution start. ---"
     echo -e "--- Deploy destructive changes without saving ---\n\n"
 
-
     echo -e "--- Step 1. Deploy destructive changes without saving ---\n"
     
     if [[ $DESTRUCTIVE_CHANGES_PRESENTED == true ]]
         then
             if [[ $APEX_TESTS_PRESENTED == true ]]
                 then
-                    sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l RunSpecifiedTests -r "$ENV_APEX_TESTS_SF" -u ${SALESFORCE_ORG_ALIAS}
+                    if [[ $ENV_POSITIVE_DIFF_SF == true ]]
+                        then
+                            sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS}
+                        else
+                            sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l RunAllTestsInOrg -u ${SALESFORCE_ORG_ALIAS}
+                    fi
                 else
                     sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS}
             fi
@@ -335,6 +339,8 @@ positive_changes_deploy_actions () {
 
 
     echo -e "\n\n\n--- Step 1. Deploy data to the target Salesforce org ----"
+
+    
     if [[ $APEX_TESTS_PRESENTED == true ]]
         then
             SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -l RunSpecifiedTests -r "$ENV_APEX_TESTS_SF" -u ${SALESFORCE_ORG_ALIAS})
