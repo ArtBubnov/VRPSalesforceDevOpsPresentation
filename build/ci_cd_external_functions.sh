@@ -237,7 +237,6 @@ destructive_changes_pre_deploy_actions () {
 
 
 positive_changes_pre_deploy_actions () {
-    APEX_TESTS_PRESENTED=false
 
     echo -e "--- positive_changes_pre_deploy_actions () function execution start. ---"
     echo -e "--- Deploy positive changes without saving ---\n\n"
