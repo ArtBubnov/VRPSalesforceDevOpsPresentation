@@ -9,7 +9,7 @@ env:
   SALESFORCE_ORG_ALIAS: ${{ vars.SALESFORCE_ORG_ALIAS }}
   ACCESS_KEY_SF: ${{ secrets.ACCESS_KEY_SF }}
   SALESFORCE_META_DIRECTORY: "force-app/main/default"
-  APEX_TESTS_DIRECTORY: "force-app/main/default/classes/tests"
+  APEX_TESTS_DIRECTORY: "force-app/main/default/classes/testFolder"
   PR_NUMBER: ${{ github.event.number }}
 
 
@@ -92,13 +92,13 @@ jobs:
       - name: --- Global Step 6. Deploy destructive changes without saving ---
         run: |
           chmod +x ./build/ci_cd_external_functions.sh
-          source ./build/ci_cd_external_functions.sh && destructive_changes_deploy_actions
+          source ./build/ci_cd_external_functions.sh && destructive_changes_pre_deploy_actions
 
 
       - name: --- Global Step 7. Deploy positive changes without saving ---
         run: |
           chmod +x ./build/ci_cd_external_functions.sh
-          source ./build/ci_cd_external_functions.sh && positive_changes_deploy_actions
+          source ./build/ci_cd_external_functions.sh && positive_changes_pre_deploy_actions
 
 
 
