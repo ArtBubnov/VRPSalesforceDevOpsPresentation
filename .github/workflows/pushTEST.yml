@@ -44,7 +44,7 @@ jobs:
         with:
           node-version: 18
 
-      - name: --- System Step 3 ---. jest install
+      - name: --- System Step 3 ---. run JEST tests
         run: |
           npm install --save-dev jest
           npm install @salesforce/sfdx-lwc-jest --save-dev

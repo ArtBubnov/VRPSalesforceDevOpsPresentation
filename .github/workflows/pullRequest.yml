@@ -38,17 +38,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: --- TEST ---
-        run: |
-          pwd
-          ls -a
-
-
 
       - name: --- System Step 1 ---. Salesforce CLI install
         uses: sfdx-actions/setup-sfdx@v1
 
 
+      - name: --- System Step 2 ---. node install
+        uses: actions/setup-node@v4 
+        with:
+          node-version: 18
 
 
       - name: --- Global Step 0. Logger ---
@@ -80,10 +78,15 @@ jobs:
           chmod +x ./build/ci_cd_external_functions.sh
           source ./build/ci_cd_external_functions.sh && get_apex_tests_list
 
-      
 
+      - name: --- System Step 3 ---. run JEST tests
+        run: |
+          npm install --save-dev jest
+          npm install @salesforce/sfdx-lwc-jest --save-dev
+          npm -version
+          node ./node_modules/@salesforce/sfdx-lwc-jest/bin/sfdx-lwc-jest
 
-
+          
       - name: --- Global Step 5. Deploy destructive changes without saving ---
         run: |
           chmod +x ./build/ci_cd_external_functions.sh
