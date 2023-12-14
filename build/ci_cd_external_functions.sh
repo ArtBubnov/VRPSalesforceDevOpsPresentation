@@ -213,6 +213,8 @@ destructive_changes_pre_deploy_actions () {
     echo -e "--- Deploy destructive changes without saving ---\n\n"
 
     echo -e "--- Step 1. Deploy destructive changes without saving ---\n"
+    BRANCH_TO_CHECKOUT="origin/"$TARGET_BRANCH_NAME
+    echo -e $(git checkout ${BRANCH_TO_CHECKOUT})
     
     if [[ $DESTRUCTIVE_CHANGES_PRESENTED == true ]]
         then
