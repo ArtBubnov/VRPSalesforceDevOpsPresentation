@@ -217,7 +217,12 @@ destructive_changes_pre_deploy_actions () {
     
     if [[ $DESTRUCTIVE_CHANGES_PRESENTED == true ]]
         then
-            sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -u ${SALESFORCE_ORG_ALIAS}
+            if [[ $APEX_TESTS_PRESENTED == true ]]
+                then
+                    sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l RunSpecifiedTests -r "$ENV_APEX_TESTS_SF" -u ${SALESFORCE_ORG_ALIAS}
+                else
+                    sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS}
+            fi
 
             echo -e "\n\n--- Step 1 execution is finished ---"
         else
@@ -275,7 +280,15 @@ destructive_changes_deploy_actions () {
 
     if [[ $DESTRUCTIVE_CHANGES_PRESENTED == true ]]
         then
-            SALESFORCE_DEPLOY_LOG=$(sf project delete source $ENV_DESTRUCTIVE_DIFF_SF -c --target-org ${SALESFORCE_ORG_ALIAS} --no-prompt)
+
+            if [[ $APEX_TESTS_PRESENTED == true ]]
+                then
+                    SALESFORCE_DEPLOY_LOG=$(sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l RunSpecifiedTests -r "$ENV_APEX_TESTS_SF" -u ${SALESFORCE_ORG_ALIAS})
+                else
+                    SALESFORCE_DEPLOY_LOG=$(sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS})
+            fi
+
+            #SALESFORCE_DEPLOY_LOG=$(sf project delete source $ENV_DESTRUCTIVE_DIFF_SF -c --target-org ${SALESFORCE_ORG_ALIAS} --no-prompt)
             echo $SALESFORCE_DEPLOY_LOG
 
             
@@ -323,8 +336,13 @@ positive_changes_deploy_actions () {
 
 
     echo -e "\n\n\n--- Step 1. Deploy data to the target Salesforce org ----"
-
-    SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$FILES_TO_DEPLOY" -u ${SALESFORCE_ORG_ALIAS} --loglevel WARN)
+    if [[ $APEX_TESTS_PRESENTED == true ]]
+        then
+            SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -c -l RunSpecifiedTests -r "$ENV_APEX_TESTS_SF" -u ${SALESFORCE_ORG_ALIAS})
+        else
+            SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS})
+    fi
+    #SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$FILES_TO_DEPLOY" -u ${SALESFORCE_ORG_ALIAS} --loglevel WARN)
 
     echo -e "\n--- Step 1 execution result ---"
     echo "Step 1 execution result:"
@@ -366,27 +384,4 @@ positive_changes_deploy_actions () {
     echo "The step 3 has been complited"
     echo $SALESFORCE_DEPLOY_ID
     echo "--- Step 2 execution is finished ---"
-}
-
-
-
-
-test_actions () {
-    echo -e "-------------TEST------------"
-    echo -e $(git checkout origin/dev)
-    HOME_DIR=$(pwd)
-
-    cd force-app/main/default/lwc/barcodeScanner
-    ls -a
-    echo -e "-------------------------"
-    cd __tests__
-    ls -a
-    cd $HOME_DIR
-    echo -e "-------------TEST------------\n\n\n"
-
-
-
-
-
-    #sfdx force:source:deploy -p "force-app/main/default/lwc/barcodeScanner/__tests__/barcodeScanner.test.js,force-app/main/default/lwc/barcodeScanner/barcodeScanner.html,force-app/main/default/lwc/barcodeScanner/barcodeScanner.js,force-app/main/default/lwc/barcodeScanner/barcodeScanner.js-meta.xml" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS}
 }
