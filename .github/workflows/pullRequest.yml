@@ -43,7 +43,7 @@ jobs:
         uses: sfdx-actions/setup-sfdx@v1
 
 
-      - name: --- System Step 2 ---. node install
+      - name: --- System Step 2 ---. Node install
         uses: actions/setup-node@v4 
         with:
           node-version: 18
@@ -79,7 +79,7 @@ jobs:
           source ./build/ci_cd_external_functions.sh && get_apex_tests_list
 
 
-      - name: --- System Step 3 ---. run JEST tests
+      - name: --- System Step 5 ---. run JEST tests
         run: |
           npm install --save-dev jest
           npm install @salesforce/sfdx-lwc-jest --save-dev
@@ -87,13 +87,13 @@ jobs:
           node ./node_modules/@salesforce/sfdx-lwc-jest/bin/sfdx-lwc-jest
 
           
-      - name: --- Global Step 5. Deploy destructive changes without saving ---
+      - name: --- Global Step 6. Deploy destructive changes without saving ---
         run: |
           chmod +x ./build/ci_cd_external_functions.sh
           source ./build/ci_cd_external_functions.sh && destructive_changes_pre_deploy_actions
 
 
-      - name: --- Global Step 6. Deploy positive changes without saving ---
+      - name: --- Global Step 7. Deploy positive changes without saving ---
         run: |
           chmod +x ./build/ci_cd_external_functions.sh
           source ./build/ci_cd_external_functions.sh && positive_changes_pre_deploy_actions
