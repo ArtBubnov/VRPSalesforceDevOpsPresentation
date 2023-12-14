@@ -66,11 +66,28 @@ get_positive_changes () {
     FILES_TO_DEPLOY=$(git diff ${DIFF_TARGET_BRANCH}..${DIFF_SOURCE_BRANCH} --name-only --diff-filter=ACMR ${SALESFORCE_META_DIRECTORY} | tr '\n' ',' | sed 's/\(.*\),/\1 /')
 
 
-    echo -e "\nStep 1 execution is finished"
-    echo "Step 1 execution result:"
-    echo -e "Files to deploy"
-    echo $FILES_TO_DEPLOY
-    echo "ENV_POSITIVE_DIFF_SF=$FILES_TO_DEPLOY" >> "$GITHUB_ENV"
+    if [[ ${#FILES_TO_DEPLOY} != 0 ]]
+        then
+            echo "ENV_POSITIVE_DIFF_SF=$FILES_TO_DEPLOY" >> "$GITHUB_ENV"
+            echo "POSITIVE_CHANGES_PRESENTED=true" >> "$GITHUB_ENV"
+
+            echo -e "\nStep 1 execution result"
+            echo "Files to deploy"
+            echo $FILES_TO_DEPLOY
+            echo -e "\n\n\n--- Step 1 execution is finished ---"
+        else
+            echo "Due to there are no positive changes detected"
+            echo -e "Script exection will be finished with 0 code status\n"
+            echo "The workflow execution will be proceeded"
+            echo -e "\n\n\n--- Step 1 execution is finished ---"
+            echo "POSITIVE_CHANGES_PRESENTED=false" >> "$GITHUB_ENV"
+    fi
+
+    #echo -e "\nStep 1 execution is finished"
+    #echo "Step 1 execution result:"
+    #echo -e "Files to deploy"
+    #echo $FILES_TO_DEPLOY
+    #echo "ENV_POSITIVE_DIFF_SF=$FILES_TO_DEPLOY" >> "$GITHUB_ENV"
 
 
     echo -e "\n--- Step 1 execution is finished ---\n\n\n"
@@ -159,14 +176,32 @@ get_apex_tests_list () {
     LIST_OF_FILES_TO_TEST_TRUNC=$((echo ${LIST_OF_FILES_TO_TEST}) | cut -c 1-$NUMBER_OF_SYMBOLS_TO_TRUNCATE )
 
 
-    echo -e "\nStep 1 execution result:"
-    echo -e "\nList of apex tests to be executed:"
-    echo $LIST_OF_FILES_TO_TEST_TRUNC
-    echo "ENV_APEX_TESTS_SF=$LIST_OF_FILES_TO_TEST_TRUNC" >> "$GITHUB_ENV"
+    if [[ ${#LIST_OF_FILES_TO_TEST_TRUNC} != 0 ]]
+        then
+            echo "ENV_APEX_TESTS_SF=$LIST_OF_FILES_TO_TEST_TRUNC" >> "$GITHUB_ENV"
+            echo "APEX_TESTS_PRESENTED=true" >> "$GITHUB_ENV"
+
+            echo "List of apex tests to be executed:"
+            echo $LIST_OF_FILES_TO_TEST_TRUNC
+        else
+            echo "Due to there are no apex tests detected"
+            echo -e "Script exection will be finished with 0 code status\n"
+            echo "The workflow execution will be proceeded"
+            echo "APEX_TESTS_PRESENTED=false" >> "$GITHUB_ENV"
+    fi
+
+
+
+
+
+#    echo -e "\nStep 1 execution result:"
+#    echo -e "\nList of apex tests to be executed:"
+#    echo $LIST_OF_FILES_TO_TEST_TRUNC
+#    echo "ENV_APEX_TESTS_SF=$LIST_OF_FILES_TO_TEST_TRUNC" >> "$GITHUB_ENV"
 
     cd $HOME_DIR
 
-    echo -e "\n--- Step 1 execution is finished ---"
+#    echo -e "\n--- Step 1 execution is finished ---"
 
 }
 
@@ -203,11 +238,24 @@ positive_changes_pre_deploy_actions () {
 
     echo -e "\n\n\n--- Step 3. Test deploy to the Salesforce org ---\n"
     echo -e $(git checkout origin/dev)
-    echo -e "******* TEST ***********"
-    echo $ENV_POSITIVE_DIFF_SF
+    
+    
+    if [[ $POSITIVE_CHANGES_PRESENTED == true ]]
+        then
+            if [[ $APEX_TESTS_PRESENTED == true ]]
+                then
+                    sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -c -l RunSpecifiedTests -r "$ENV_APEX_TESTS_SF" -u ${SALESFORCE_ORG_ALIAS}
+                else
+                    sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS}
+            fi
+        else
+            echo "Due to there are no positive changes detected"
+            echo -e "Script exection will be finished with 0 code status\n"
+            echo "The workflow execution will be proceeded"
 
-    echo -e "******* TEST ***********"
-    sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -c -l RunSpecifiedTests -r "$ENV_APEX_TESTS_SF" -u ${SALESFORCE_ORG_ALIAS}
+            echo -e "\n--- Step 1 execution is finished ---"
+    fi
+    
 
 
     echo -e "\n--- Step 3 execution is finished ---"
