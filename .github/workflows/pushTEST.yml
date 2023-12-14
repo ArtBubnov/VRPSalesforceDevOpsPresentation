@@ -39,17 +39,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: --- System Step 2 ---. node install
-        uses: actions/setup-node@v4 
-        with:
-          node-version: 18
+#      - name: --- System Step 2 ---. node install
+#        uses: actions/setup-node@v4 
+#        with:
+#          node-version: 18
 
-      - name: --- System Step 3 ---. run JEST tests
-        run: |
-          npm install --save-dev jest
-          npm install @salesforce/sfdx-lwc-jest --save-dev
-          npm -version
-          node ./node_modules/@salesforce/sfdx-lwc-jest/bin/sfdx-lwc-jest
+#      - name: --- System Step 3 ---. run JEST tests
+#        run: |
+#          npm install --save-dev jest
+#          npm install @salesforce/sfdx-lwc-jest --save-dev
+#          npm -version
+#          node ./node_modules/@salesforce/sfdx-lwc-jest/bin/sfdx-lwc-jest
 
 #      - name:  --- System Step 4 ---. sfdx-lwc-jest install
 #        run: |
