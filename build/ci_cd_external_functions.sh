@@ -222,7 +222,7 @@ destructive_changes_pre_deploy_actions () {
                         then
                             sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS}
                         else
-                            sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l RunAllTestsInOrg -u ${SALESFORCE_ORG_ALIAS}
+                            sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS}
                     fi
                 else
                     sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS}
