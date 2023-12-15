@@ -289,17 +289,7 @@ destructive_changes_deploy_actions () {
 
     if [[ $DESTRUCTIVE_CHANGES_PRESENTED == true ]]
         then
-            if [[ $APEX_TESTS_PRESENTED == true ]]
-                then
-                    if [[ $ENV_POSITIVE_DIFF_SF == true ]]
-                        then
-                            sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS} --no-prompt
-                        else
-                            sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS} --no-prompt
-                    fi
-                else
-                    sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS} --no-prompt
-            fi
+           SALESFORCE_DEPLOY_LOG=$(sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -l NoTestRun -u ${SALESFORCE_ORG_ALIAS} --no-prompt)
 
             #SALESFORCE_DEPLOY_LOG=$(sf project delete source $ENV_DESTRUCTIVE_DIFF_SF -c --target-org ${SALESFORCE_ORG_ALIAS} --no-prompt)
             echo $SALESFORCE_DEPLOY_LOG
