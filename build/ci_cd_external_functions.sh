@@ -250,7 +250,8 @@ positive_changes_pre_deploy_actions () {
 
     echo -e "\n\n\n--- Step 3. Test deploy to the Salesforce org ---\n"
     echo -e $(git checkout origin/dev)
-    
+    BRANCH_TO_CHECKOUT="origin/"$SOURCE_BRANCH_NAME
+    echo -e $(git checkout ${BRANCH_TO_CHECKOUT})    
     
     if [[ $POSITIVE_CHANGES_PRESENTED == true ]]
         then
@@ -283,14 +284,21 @@ destructive_changes_deploy_actions () {
 
     echo -e "--- Step 1. Deploy destructive changes without saving ---\n"
 
+    BRANCH_TO_CHECKOUT="origin/"$TARGET_BRANCH_NAME
+    echo -e $(git checkout ${BRANCH_TO_CHECKOUT})
+
     if [[ $DESTRUCTIVE_CHANGES_PRESENTED == true ]]
         then
-
             if [[ $APEX_TESTS_PRESENTED == true ]]
                 then
-                    SALESFORCE_DEPLOY_LOG=$(sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l RunSpecifiedTests -r "$ENV_APEX_TESTS_SF" -u ${SALESFORCE_ORG_ALIAS})
+                    if [[ $ENV_POSITIVE_DIFF_SF == true ]]
+                        then
+                            sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS} --no-prompt
+                        else
+                            sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS} --no-prompt
+                    fi
                 else
-                    SALESFORCE_DEPLOY_LOG=$(sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS})
+                    sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS} --no-prompt
             fi
 
             #SALESFORCE_DEPLOY_LOG=$(sf project delete source $ENV_DESTRUCTIVE_DIFF_SF -c --target-org ${SALESFORCE_ORG_ALIAS} --no-prompt)
@@ -341,7 +349,8 @@ positive_changes_deploy_actions () {
 
 
     echo -e "\n\n\n--- Step 1. Deploy data to the target Salesforce org ----"
-
+    BRANCH_TO_CHECKOUT="origin/"$SOURCE_BRANCH_NAME
+    echo -e $(git checkout ${BRANCH_TO_CHECKOUT})  
     
     if [[ $APEX_TESTS_PRESENTED == true ]]
         then
