@@ -1,43 +1,43 @@
 #this scenario will be executed in case of creation of a Pull Request
-name: pull request logic
+#name: pull request logic
 
-env:
-  ENV_DESTRUCTIVE_DIFF_SF: ${{ vars.SF_COMMAND_META_STRING }}
-  TARGET_BRANCH_NAME: "qa"
-  SOURCE_BRANCH_NAME: "dev"
-  DEV_SALESFORCE_AUTH_GITHUB_SECRET_VALUE: ${{ vars.PLATFORM_USERNAME_GITHUB_VARIABLE_VALUE}}
-  SALESFORCE_ORG_ALIAS: ${{ vars.SALESFORCE_ORG_ALIAS }}
-  ACCESS_KEY_SF: ${{ secrets.ACCESS_KEY_SF }}
-  SALESFORCE_META_DIRECTORY: "force-app/main/default"
-  APEX_TESTS_DIRECTORY: "force-app/main/default/classes/testFolder"
+#env:
+#  ENV_DESTRUCTIVE_DIFF_SF: ${{ vars.SF_COMMAND_META_STRING }}
+#  TARGET_BRANCH_NAME: "qa"
+#  SOURCE_BRANCH_NAME: "dev"
+#  DEV_SALESFORCE_AUTH_GITHUB_SECRET_VALUE: ${{ vars.PLATFORM_USERNAME_GITHUB_VARIABLE_VALUE}}
+#  SALESFORCE_ORG_ALIAS: ${{ vars.SALESFORCE_ORG_ALIAS }}
+#  ACCESS_KEY_SF: ${{ secrets.ACCESS_KEY_SF }}
+#  SALESFORCE_META_DIRECTORY: "force-app/main/default"
+#  APEX_TESTS_DIRECTORY: "force-app/main/default/classes/testFolder"
 
 
 
   
 #  ENV_DESTRUCTIVE_DIFF_SFDX: ${{ vars.SFDX_COMMAND_META_STRING }}
 #depends on the target branch one of the following scenarios:   
-on:
-  push:
-    #PR target branch is: 
-    branches:
-      - 'dev**'
-      - 'qa**'
-      - 'staging**'
-      - 'uat**'
-      - 'prod**'
+#on:
+#  push:
+#    #PR target branch is: 
+#    branches:
+#      - 'dev**'
+#      - 'qa**'
+#      - 'staging**'
+#      - 'uat**'
+#      - 'prod**'
 
 
-jobs:
-  jest_test:
-    name: jest_test
-    environment: dev
-    runs-on: ubuntu-latest
-    steps:
+#jobs:
+#  jest_test:
+#    name: jest_test
+#    environment: dev
+#    runs-on: ubuntu-latest
+#    steps:
 
-      - name: --- System Step 0 ---. Checkout repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+#      - name: --- System Step 0 ---. Checkout repo
+#        uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 0
 
 #      - name: --- System Step 2 ---. node install
 #        uses: actions/setup-node@v4 

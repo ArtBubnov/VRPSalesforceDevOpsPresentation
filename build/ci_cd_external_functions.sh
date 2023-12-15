@@ -341,53 +341,62 @@ positive_changes_deploy_actions () {
     echo -e "\n\n\n--- Step 1. Deploy data to the target Salesforce org ----"
     BRANCH_TO_CHECKOUT="origin/"$SOURCE_BRANCH_NAME
     echo -e $(git checkout ${BRANCH_TO_CHECKOUT})  
-    
-    if [[ $APEX_TESTS_PRESENTED == true ]]
+    if [[ $POSITIVE_CHANGES_PRESENTED == true ]]
         then
-            SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -l RunSpecifiedTests -r "$ENV_APEX_TESTS_SF" -u ${SALESFORCE_ORG_ALIAS})
+            if [[ $APEX_TESTS_PRESENTED == true ]]
+                then
+                    SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -l RunSpecifiedTests -r "$ENV_APEX_TESTS_SF" -u ${SALESFORCE_ORG_ALIAS})
+                else
+                    SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -l NoTestRun -u ${SALESFORCE_ORG_ALIAS})
+            fi
+            #SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$FILES_TO_DEPLOY" -u ${SALESFORCE_ORG_ALIAS} --loglevel WARN)
+
+            echo -e "\n--- Step 1 execution result ---"
+            echo "Step 1 execution result:"
+            echo "Salesforce deploy result is:"
+            echo $SALESFORCE_DEPLOY_LOG
+
+            echo -e "\n--- Step 1 execution is finished ---"
+
+
+
+
+            echo -e "\n\n\n--- Step 2. Deploy meta to the target Salesforce org deploy ID ----"
+            mapfile -t SALESFORCE_DEPLOY_LOG_ARRAY < <( echo $SALESFORCE_DEPLOY_LOG | tr ' ' '\n' | sed 's/\(.*\),/\1 /' )
+
+
+            COUNT=0
+            ARRAY_LEN=${#SALESFORCE_DEPLOY_LOG_ARRAY[@]}
+            SALESFORCE_DEPLOY_ID=""
+            LOOP_LEN=$( expr $ARRAY_LEN - 1)
+
+            while [ $COUNT -le $LOOP_LEN ]
+            do
+                if [[ ${SALESFORCE_DEPLOY_LOG_ARRAY[$COUNT]} == *"ID:"* ]];
+                then
+                    SALESFORCE_DEPLOY_ID_ARRAY_POSITION=$(( $COUNT +1))
+                    SALESFORCE_DEPLOY_ID=${SALESFORCE_DEPLOY_LOG_ARRAY[$SALESFORCE_DEPLOY_ID_ARRAY_POSITION]}
+                    COUNT=$(( $COUNT +1))
+                else   
+                    COUNT=$(( $COUNT +1))
+                fi
+            done
+
+
+            echo "POSITIVE_CHANGES_SALESFORCE_DEPLOY_ID=$SALESFORCE_DEPLOY_ID" >> "$GITHUB_ENV"
+
+            echo -e "\n--- Step 2 execution result ---"
+            echo "Step 2 execution result:"
+            echo "Salesforce org deploy ID is :"
+            echo "The step 3 has been complited"
+            echo $SALESFORCE_DEPLOY_ID
+            echo "--- Step 2 execution is finished ---"
+
         else
-            SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -l NoTestRun -u ${SALESFORCE_ORG_ALIAS})
+            echo "Due to there are no positive changes detected"
+            echo -e "Script exection will be finished with 0 code status\n"
+            echo "The workflow execution will be proceeded"
+
+            echo -e "\n--- Step 1 execution is finished ---"
     fi
-    #SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$FILES_TO_DEPLOY" -u ${SALESFORCE_ORG_ALIAS} --loglevel WARN)
-
-    echo -e "\n--- Step 1 execution result ---"
-    echo "Step 1 execution result:"
-    echo "Salesforce deploy result is:"
-    echo $SALESFORCE_DEPLOY_LOG
-
-    echo -e "\n--- Step 1 execution is finished ---"
-
-
-
-
-    echo -e "\n\n\n--- Step 2. Deploy meta to the target Salesforce org deploy ID ----"
-    mapfile -t SALESFORCE_DEPLOY_LOG_ARRAY < <( echo $SALESFORCE_DEPLOY_LOG | tr ' ' '\n' | sed 's/\(.*\),/\1 /' )
-
-
-    COUNT=0
-    ARRAY_LEN=${#SALESFORCE_DEPLOY_LOG_ARRAY[@]}
-    SALESFORCE_DEPLOY_ID=""
-    LOOP_LEN=$( expr $ARRAY_LEN - 1)
-
-    while [ $COUNT -le $LOOP_LEN ]
-    do
-        if [[ ${SALESFORCE_DEPLOY_LOG_ARRAY[$COUNT]} == *"ID:"* ]];
-        then
-            SALESFORCE_DEPLOY_ID_ARRAY_POSITION=$(( $COUNT +1))
-            SALESFORCE_DEPLOY_ID=${SALESFORCE_DEPLOY_LOG_ARRAY[$SALESFORCE_DEPLOY_ID_ARRAY_POSITION]}
-            COUNT=$(( $COUNT +1))
-        else   
-            COUNT=$(( $COUNT +1))
-        fi
-    done
-
-
-    echo "POSITIVE_CHANGES_SALESFORCE_DEPLOY_ID=$SALESFORCE_DEPLOY_ID" >> "$GITHUB_ENV"
-
-    echo -e "\n--- Step 2 execution result ---"
-    echo "Step 2 execution result:"
-    echo "Salesforce org deploy ID is :"
-    echo "The step 3 has been complited"
-    echo $SALESFORCE_DEPLOY_ID
-    echo "--- Step 2 execution is finished ---"
 }
