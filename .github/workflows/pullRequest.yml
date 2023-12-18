@@ -1,4 +1,4 @@
-#this scenario will be executed in case of creation of a Pull Request  
+#this scenario will be executed in case of creation of a Pull Request   
 name: pull request logic
 
 #workflow global variables
