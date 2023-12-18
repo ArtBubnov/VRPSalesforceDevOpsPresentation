@@ -30,8 +30,6 @@ login_to_SF_org () {
     echo -e "--- Login into Salesforce Org ---\n\n\n"
 
 
-    echo -e "\n\n\n--- Step 1. Login to the target Salesforce org"
-
     echo "Creating .key file"
     touch access_pass.key
 
@@ -44,7 +42,7 @@ login_to_SF_org () {
 
     rm access_pass.key
 
-    echo -e "\n--- Step 1.  execution is finished"
+    echo -e "\n--- login_to_SF_org_full_version () function execution end. ---"
 }
 
 
@@ -53,10 +51,6 @@ login_to_SF_org () {
 get_positive_changes () {
     echo -e "--- get_positive_changes () function execution start. ---"
     echo -e "--- Define positive changes ---\n"
-
-
-
-    echo -e "\n\n--- Step 1. Logic execution to define the list of POSITIVE files to be deployed to the Salesforce org ---"
 
 
     echo -e "\nFind the difference between organizations"
@@ -71,15 +65,12 @@ get_positive_changes () {
             echo "ENV_POSITIVE_DIFF_SF=$FILES_TO_DEPLOY" >> "$GITHUB_ENV"
             echo "POSITIVE_CHANGES_PRESENTED=true" >> "$GITHUB_ENV"
 
-            echo -e "\nStep 1 execution result"
-            echo "Files to deploy"
+            echo "The following has been defined as files to be deployed"
             echo $FILES_TO_DEPLOY
-            echo -e "\n\n\n--- Step 1 execution is finished ---"
         else
             echo "Due to there are no positive changes detected"
             echo -e "Script exection will be finished with 0 code status\n"
             echo "The workflow execution will be proceeded"
-            echo -e "\n\n\n--- Step 1 execution is finished ---"
             echo "POSITIVE_CHANGES_PRESENTED=false" >> "$GITHUB_ENV"
     fi
 
@@ -90,7 +81,7 @@ get_positive_changes () {
     #echo "ENV_POSITIVE_DIFF_SF=$FILES_TO_DEPLOY" >> "$GITHUB_ENV"
 
 
-    echo -e "\n--- Step 1 execution is finished ---\n\n\n"
+    echo -e "\n--- get_positive_changes () function execution end. ---"
 }
 
 
@@ -99,9 +90,6 @@ get_positive_changes () {
 get_destructive_changes () {
     echo -e "--- get_destructive_changes () function execution start. ---"
     echo -e "--- Define destructive changes ---\n"
-
-
-    echo -e "\n\n--- Step 1. Logic execution to define the list of DESTRUCTIVE files to be deleted from the Salesforce org ---"
 
 
     echo -e "\nFind the difference between organizations"
@@ -116,17 +104,18 @@ get_destructive_changes () {
             echo "ENV_DESTRUCTIVE_DIFF_SF=$FILES_TO_DEPLOY" >> "$GITHUB_ENV"
             echo "DESTRUCTIVE_CHANGES_PRESENTED=true" >> "$GITHUB_ENV"
 
-            echo -e "\nStep 1 execution result"
-            echo "destructive changes list is: "
+            echo "The following has been defined as files to be deployed"
             echo $FILES_TO_DEPLOY
-            echo -e "\n\n\n--- Step 1 execution is finished ---"
         else
             echo "Due to there are no destructive changes detected"
             echo -e "Script exection will be finished with 0 code status\n"
             echo "The workflow execution will be proceeded"
-            echo -e "\n\n\n--- Step 1 execution is finished ---"
+
             echo "DESTRUCTIVE_CHANGES_PRESENTED=false" >> "$GITHUB_ENV"
     fi
+
+
+    echo -e "\n--- get_destructive_changes () function execution end. ---"
 }
 
 
@@ -136,17 +125,12 @@ get_apex_tests_list () {
     echo -e "--- get_apex_tests_list () function execution start. ---"
     echo -e "--- Define list of Apex tests to be used ---\n\n"
 
+
     HOME_DIR=$(pwd)
-
-    echo -e "--- Step 1. Logic execution to define the list of apex tests to be executed during deployment to the Salesforce org ---"
-
-    #get to classes directory to define the list of tests to be executed
     cd $APEX_TESTS_DIRECTORY
 
-    #add all the files in the folder into array
     mapfile -t classes_files_array < <( ls )
 
-    #define which of the files are tests
     COUNT=0
     ARRAY_LEN=${#classes_files_array[@]}
     LIST_OF_FILES_TO_TEST=""
@@ -180,8 +164,7 @@ get_apex_tests_list () {
         then
             echo "ENV_APEX_TESTS_SF=$LIST_OF_FILES_TO_TEST_TRUNC" >> "$GITHUB_ENV"
             echo "APEX_TESTS_PRESENTED=true" >> "$GITHUB_ENV"
-
-            echo "List of apex tests to be executed:"
+            echo "The following has been defined as apex tests to be executed"
             echo $LIST_OF_FILES_TO_TEST_TRUNC
         else
             echo "Due to there are no apex tests detected"
@@ -190,19 +173,10 @@ get_apex_tests_list () {
             echo "APEX_TESTS_PRESENTED=false" >> "$GITHUB_ENV"
     fi
 
-
-
-
-
-#    echo -e "\nStep 1 execution result:"
-#    echo -e "\nList of apex tests to be executed:"
-#    echo $LIST_OF_FILES_TO_TEST_TRUNC
-#    echo "ENV_APEX_TESTS_SF=$LIST_OF_FILES_TO_TEST_TRUNC" >> "$GITHUB_ENV"
-
     cd $HOME_DIR
 
-#    echo -e "\n--- Step 1 execution is finished ---"
 
+    echo -e "\n--- get_apex_tests_list () function execution end. ---"
 }
 
 
@@ -212,12 +186,12 @@ destructive_changes_pre_deploy_actions () {
     echo -e "--- destructive_changes_pre_deploy_actions () function execution start. ---"
     echo -e "--- Deploy destructive changes without saving ---\n\n"
 
-    echo -e "--- Step 1. Deploy destructive changes without saving ---\n"
     BRANCH_TO_CHECKOUT="origin/"$TARGET_BRANCH_NAME
     echo -e $(git checkout ${BRANCH_TO_CHECKOUT})
     
     if [[ $DESTRUCTIVE_CHANGES_PRESENTED == true ]]
         then
+        
             if [[ $APEX_TESTS_PRESENTED == true ]]
                 then
                     if [[ $ENV_POSITIVE_DIFF_SF == true ]]
@@ -230,26 +204,24 @@ destructive_changes_pre_deploy_actions () {
                     sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -c -l NoTestRun -u ${SALESFORCE_ORG_ALIAS} --no-prompt
             fi
 
-            echo -e "\n\n--- Step 1 execution is finished ---"
         else
+            echo "Due to there are no destructive changes detected"
             echo -e "Script exection will be finished with 0 code status\n"
             echo "The workflow execution will be proceeded"
-
-            echo -e "\n--- Step 1 execution is finished ---"
     fi
+
+
+    echo -e "\n--- destructive_changes_pre_deploy_actions () function execution end. ---"
 }
 
 
 
 
 positive_changes_pre_deploy_actions () {
-
     echo -e "--- positive_changes_pre_deploy_actions () function execution start. ---"
     echo -e "--- Deploy positive changes without saving ---\n\n"
 
 
-    echo -e "\n\n\n--- Step 3. Test deploy to the Salesforce org ---\n"
-    echo -e $(git checkout origin/dev)
     BRANCH_TO_CHECKOUT="origin/"$SOURCE_BRANCH_NAME
     echo -e $(git checkout ${BRANCH_TO_CHECKOUT})    
     
@@ -265,13 +237,11 @@ positive_changes_pre_deploy_actions () {
             echo "Due to there are no positive changes detected"
             echo -e "Script exection will be finished with 0 code status\n"
             echo "The workflow execution will be proceeded"
-
-            echo -e "\n--- Step 1 execution is finished ---"
     fi
     
 
 
-    echo -e "\n--- Step 3 execution is finished ---"
+    echo -e "\n--- positive_changes_pre_deploy_actions () function execution end. ---"
 }
 
 
@@ -282,8 +252,6 @@ destructive_changes_deploy_actions () {
     echo -e "--- Deploy destructive changes ---\n\n"
 
 
-    echo -e "--- Step 1. Deploy destructive changes without saving ---\n"
-
     BRANCH_TO_CHECKOUT="origin/"$TARGET_BRANCH_NAME
     echo -e $(git checkout ${BRANCH_TO_CHECKOUT})
 
@@ -292,9 +260,6 @@ destructive_changes_deploy_actions () {
            SALESFORCE_DEPLOY_LOG=$(sfdx force:source:delete -p "$ENV_DESTRUCTIVE_DIFF_SF" -l NoTestRun -u ${SALESFORCE_ORG_ALIAS} --no-prompt)
 
             #SALESFORCE_DEPLOY_LOG=$(sf project delete source $ENV_DESTRUCTIVE_DIFF_SF -c --target-org ${SALESFORCE_ORG_ALIAS} --no-prompt)
-            echo $SALESFORCE_DEPLOY_LOG
-
-            
             mapfile -t SALESFORCE_DEPLOY_LOG_ARRAY < <( echo $SALESFORCE_DEPLOY_LOG | tr ' ' '\n' | sed 's/\(.*\),/\1 /' )
 
 
@@ -323,11 +288,10 @@ destructive_changes_deploy_actions () {
             echo "Due to there are no destructive changes detected"
             echo -e "Script exection will be finished with 0 code status\n"
             echo "The workflow execution will be proceeded"
-
-            echo -e "\n--- Step 1 execution is finished ---"
-            exit 0
     fi
 
+
+    echo -e "\n--- destructive_changes_deploy_actions () function execution end. ---"
 }
 
 
@@ -338,32 +302,20 @@ positive_changes_deploy_actions () {
     echo -e "--- Deploy positive changes ---\n\n"
 
 
-    echo -e "\n\n\n--- Step 1. Deploy data to the target Salesforce org ----"
     BRANCH_TO_CHECKOUT="origin/"$SOURCE_BRANCH_NAME
     echo -e $(git checkout ${BRANCH_TO_CHECKOUT})  
+
     if [[ $POSITIVE_CHANGES_PRESENTED == true ]]
         then
+
             if [[ $APEX_TESTS_PRESENTED == true ]]
                 then
                     SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -l RunSpecifiedTests -r "$ENV_APEX_TESTS_SF" -u ${SALESFORCE_ORG_ALIAS})
                 else
                     SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$ENV_POSITIVE_DIFF_SF" -l NoTestRun -u ${SALESFORCE_ORG_ALIAS})
             fi
-            #SALESFORCE_DEPLOY_LOG=$(sfdx force:source:deploy -p "$FILES_TO_DEPLOY" -u ${SALESFORCE_ORG_ALIAS} --loglevel WARN)
 
-            echo -e "\n--- Step 1 execution result ---"
-            echo "Step 1 execution result:"
-            echo "Salesforce deploy result is:"
-            echo $SALESFORCE_DEPLOY_LOG
-
-            echo -e "\n--- Step 1 execution is finished ---"
-
-
-
-
-            echo -e "\n\n\n--- Step 2. Deploy meta to the target Salesforce org deploy ID ----"
             mapfile -t SALESFORCE_DEPLOY_LOG_ARRAY < <( echo $SALESFORCE_DEPLOY_LOG | tr ' ' '\n' | sed 's/\(.*\),/\1 /' )
-
 
             COUNT=0
             ARRAY_LEN=${#SALESFORCE_DEPLOY_LOG_ARRAY[@]}
@@ -384,19 +336,14 @@ positive_changes_deploy_actions () {
 
 
             echo "POSITIVE_CHANGES_SALESFORCE_DEPLOY_ID=$SALESFORCE_DEPLOY_ID" >> "$GITHUB_ENV"
-
-            echo -e "\n--- Step 2 execution result ---"
-            echo "Step 2 execution result:"
-            echo "Salesforce org deploy ID is :"
-            echo "The step 3 has been complited"
             echo $SALESFORCE_DEPLOY_ID
-            echo "--- Step 2 execution is finished ---"
 
         else
             echo "Due to there are no positive changes detected"
             echo -e "Script exection will be finished with 0 code status\n"
             echo "The workflow execution will be proceeded"
-
-            echo -e "\n--- Step 1 execution is finished ---"
     fi
+
+
+    echo -e "\n--- destructive_changes_deploy_actions () function execution end. ---"
 }
