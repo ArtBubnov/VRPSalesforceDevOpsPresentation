@@ -33,53 +33,61 @@ jobs:
 
     steps:
 
+      #Dowloand the whole repo into an agent
       - name: --- System Step 0 ---. Checkout repo
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
 
+      #SFDX Installation 
       - name: --- System Step 1 ---. Salesforce CLI install
         uses: sfdx-actions/setup-sfdx@v1
 
 
+      #Node JS Installation
       - name: --- System Step 2 ---. Node install
         uses: actions/setup-node@v4 
         with:
           node-version: 18
 
 
+      #Basic info logger
       - name: --- Global Step 0. Logger ---
         run: |
           chmod +x ./build/ci_cd_external_functions.sh
           source ./build/ci_cd_external_functions.sh && logger
 
 
+      #Salesforce login via SFDX AUTH URL
       - name: --- Global Step 1. Salesforce login ---
         run: |
           chmod +x ./build/ci_cd_external_functions.sh
           source ./build/ci_cd_external_functions.sh && login_to_SF_org
 
 
-      - name: --- Global Step 2. Get destractive meta list ---
+      #Define pull request destructive data
+      - name: --- Global Step 2. Get destructive meta list ---
         run: |
           chmod +x ./build/ci_cd_external_functions.sh
           source ./build/ci_cd_external_functions.sh && get_destructive_changes
 
 
+      #Define pull request positive data
       - name: --- Global Step 3. Get positive meta list ---
         run: |
           chmod +x ./build/ci_cd_external_functions.sh
           source ./build/ci_cd_external_functions.sh && get_positive_changes
 
 
+      #Define pull request apex tests list
       - name: --- Global Step 4. Get apex tests list ---
         run: |
           chmod +x ./build/ci_cd_external_functions.sh
           source ./build/ci_cd_external_functions.sh && get_apex_tests_list
 
 
-      - name: --- System Step 5 ---. run JEST tests
+      - name: --- System Step 5 ---. Execute JEST tests
         run: |
           npm install --save-dev jest
           npm install @salesforce/sfdx-lwc-jest --save-dev
@@ -97,9 +105,3 @@ jobs:
         run: |
           chmod +x ./build/ci_cd_external_functions.sh
           source ./build/ci_cd_external_functions.sh && positive_changes_pre_deploy_actions
-
-#      - name: --- Global Step 6. Deploy positive changes without saving ---
-#        run: |
-#          chmod +x ./build/ci_cd_external_functions.sh
-#          source ./build/ci_cd_external_functions.sh && test_actions
-          
